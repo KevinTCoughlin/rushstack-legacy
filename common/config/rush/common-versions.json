@@ -83,6 +83,15 @@
       "~4.2.4",
       "~4.5.5",
       "~4.7.4"
+    ],
+
+    /**
+     * gulp-core-build-sass needs @types/node@18 because sass@1.97 type definitions
+     * reference the global URL type which is only available in @types/node@16+.
+     * The rest of the monorepo still uses @types/node@10.
+     */
+    "@types/node": [
+      "18.17.15"
     ]
   }
 }

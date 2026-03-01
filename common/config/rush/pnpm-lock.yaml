@@ -509,7 +509,7 @@ importers:
       '@types/glob': 7.1.1
       '@types/gulp': 4.0.6
       '@types/jest': 25.2.1
-      '@types/node': 10.17.13
+      '@types/node': 18.17.15
       autoprefixer: ~10.4.21
       clean-css: ~5.3.3
       eslint: ~7.12.1
@@ -524,7 +524,7 @@ importers:
       '@microsoft/load-themed-styles': 1.10.172
       '@rushstack/node-core-library': 3.53.0
       '@types/gulp': 4.0.6
-      '@types/node': 10.17.13
+      '@types/node': 18.17.15
       autoprefixer: 10.4.27_postcss@8.5.6
       clean-css: 5.3.3
       glob: 7.0.6
@@ -2924,6 +2924,10 @@ packages:
 
   /@types/node/12.20.24:
     resolution: {integrity: sha512-yxDeaQIAJlMav7fH5AQqPH1u8YIuhYJXYBzxaQ4PifsU0GDO38MSdmEDeRlIxrKbC6NbEaaEHDanWb+y30U8SQ==}
+
+  /@types/node/18.17.15:
+    resolution: {integrity: sha512-2yrWpBk32tvV/JAd3HNHWuZn/VDN1P+72hWirHnvsvTGSqbANi+kSeuQR9yAHnbvaBvHDsoTdXV0Fe+iRtHLKA==}
+    dev: false
 
   /@types/normalize-package-data/2.4.0:
     resolution: {integrity: sha512-f5j5b/Gf71L+dbqxIpQ4Z2WlmI/mPJ0fOkGGmFgtb6sAu97EPczzbS3/tJKxmcYDj55OX6ssqwDAWOHIYDRDGA==}

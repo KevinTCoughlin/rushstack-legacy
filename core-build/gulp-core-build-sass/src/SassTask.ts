@@ -2,7 +2,7 @@
 // See LICENSE in the project root for license information.
 
 import * as path from 'path';
-import { pathToFileURL, URL as NodeURL } from 'url';
+import { pathToFileURL } from 'url';
 import * as Gulp from 'gulp';
 import { EOL } from 'os';
 
@@ -165,7 +165,7 @@ export class SassTask extends GulpTask<ISassTaskConfig> {
       sassResult = sass.compile(filePath, {
         importers: [
           {
-            findFileUrl: (url: string): NodeURL | null => {
+            findFileUrl: (url: string): URL | null => {
               const patched: string = this._patchSassUrl(url);
               if (patched === '') {
                 return null;
