@@ -3,8 +3,8 @@
 
 import * as path from 'path';
 
-import * as postcss from 'postcss';
-import * as cssModules from 'postcss-modules';
+import postcss = require('postcss');
+import cssModules = require('postcss-modules');
 import * as crypto from 'crypto';
 
 export interface IClassMap {
