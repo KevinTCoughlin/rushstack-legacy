@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@microsoft/gulp-core-build": "workspace:*",
-    "@types/node": "10.17.13",
+    "@types/node": "18.17.15",
     "glob": "~7.0.5",
     "gulp": "~4.0.2",
     "gulp-istanbul": "~1.1.3",

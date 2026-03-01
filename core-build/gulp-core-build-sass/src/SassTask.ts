@@ -2,6 +2,7 @@
 // See LICENSE in the project root for license information.
 
 import * as path from 'path';
+import { pathToFileURL } from 'url';
 import * as Gulp from 'gulp';
 import { EOL } from 'os';
 
@@ -10,9 +11,9 @@ import { splitStyles } from '@microsoft/load-themed-styles';
 import { FileSystem, JsonFile, LegacyAdapters, JsonObject } from '@rushstack/node-core-library';
 import * as glob from 'glob';
 import * as sass from 'sass';
-import * as postcss from 'postcss';
+import postcss = require('postcss');
 import * as CleanCss from 'clean-css';
-import * as autoprefixer from 'autoprefixer';
+import autoprefixer = require('autoprefixer');
 import CSSModules, { ICSSModules, IClassMap } from './CSSModules';
 
 export interface ISassTaskConfig {
@@ -94,7 +95,7 @@ export class SassTask extends GulpTask<ISassTaskConfig> {
   public cleanMatch: string[] = ['src/**/*.sass.ts', 'src/**/*.scss.ts'];
 
   private get _postCSSPlugins(): postcss.AcceptedPlugin[] {
-    return [autoprefixer(this.taskConfig.autoprefixerOptions) as postcss.Transformer];
+    return [autoprefixer(this.taskConfig.autoprefixerOptions)];
   }
 
   public constructor() {
@@ -159,26 +160,51 @@ export class SassTask extends GulpTask<ISassTaskConfig> {
       cssOutputPathAbsolute = path.join(this.buildConfig.rootPath, cssOutputPath);
     }
 
-    return LegacyAdapters.convertCallbackToPromise(sass.render, {
-      file: filePath,
-      importer: (url: string) => ({ file: this._patchSassUrl(url) }),
-      sourceMap: this.taskConfig.dropCssFiles,
-      sourceMapContents: true,
-      omitSourceMapUrl: true,
-      outFile: cssOutputPath,
-      quietDeps: !!this.taskConfig.quietDeps
-    })
-      .catch((error: sass.SassException) => {
-        this.fileError(filePath, error.line, error.column, error.name, error.message);
-        throw new Error(error.message);
-      })
-      .then((result: sass.Result) => {
+    let sassResult: sass.CompileResult;
+    try {
+      sassResult = sass.compile(filePath, {
+        importers: [
+          {
+            findFileUrl: (url: string): URL | null => {
+              const patched: string = this._patchSassUrl(url);
+              if (patched === '') {
+                return null;
+              }
+              if (patched !== url) {
+                return pathToFileURL(path.resolve(patched));
+              }
+              return null;
+            }
+          }
+        ],
+        sourceMap: !!this.taskConfig.dropCssFiles,
+        sourceMapIncludeSources: true,
+        quietDeps: !!this.taskConfig.quietDeps
+      });
+    } catch (error: unknown) {
+      const sassError: { span?: { start?: { line?: number; column?: number } }; name?: string; message: string } =
+        error as { span?: { start?: { line?: number; column?: number } }; name?: string; message: string };
+      this.fileError(
+        filePath,
+        sassError.span?.start?.line || 0,
+        sassError.span?.start?.column || 0,
+        sassError.name || 'SassError',
+        sassError.message
+      );
+      throw new Error(sassError.message);
+    }
+
+    const cssString: string = sassResult.css;
+    const sourceMapObject: object | undefined = sassResult.sourceMap as object | undefined;
+
+    return Promise.resolve()
+      .then(() => {
         const options: postcss.ProcessOptions = {
           from: filePath
         };
-        if (result.map && !this.buildConfig.production) {
+        if (sourceMapObject && !this.buildConfig.production) {
           options.map = {
-            prev: result.map.toString() // Pass the source map through to postcss
+            prev: JSON.stringify(sourceMapObject)
           };
         }
 
@@ -186,7 +212,7 @@ export class SassTask extends GulpTask<ISassTaskConfig> {
         if (processAsModuleCss) {
           plugins.push(cssModules.getPlugin());
         }
-        return postcss(plugins).process(result.css.toString(), options) as PromiseLike<postcss.Result>;
+        return postcss(plugins).process(cssString, options);
       })
       .then((result: postcss.Result) => {
         let cleanCssOptions: CleanCss.Options = { level: 1, returnPromise: true };
@@ -270,7 +296,7 @@ export class SassTask extends GulpTask<ISassTaskConfig> {
 
   private _patchSassUrl(url: string): string {
     if (url[0] === '~') {
-      url = 'node_modules/' + url.substr(1);
+      url = 'node_modules/' + url.substring(1);
     } else if (url === 'stdin') {
       url = '';
     }

@@ -165,12 +165,13 @@ export class JestTask extends GulpTask<IJestConfig> {
     };
 
     // suppress 'Running coverage on untested files...' warning
-    const oldTTY: true | undefined = process.stdout.isTTY;
-    process.stdout.isTTY = undefined;
+    const writableStdout: { isTTY?: boolean } = process.stdout as { isTTY?: boolean };
+    const oldTTY: boolean | undefined = writableStdout.isTTY;
+    writableStdout.isTTY = undefined;
 
     runCLI(jestConfig, [this.buildConfig.rootPath])
       .then((result: { results: AggregatedResult; globalConfig: Config.GlobalConfig }) => {
-        process.stdout.isTTY = oldTTY;
+        writableStdout.isTTY = oldTTY;
         if (!result.results.success) {
           completeCallback(new Error('Jest tests or coverage failed'));
         } else {
@@ -181,7 +182,7 @@ export class JestTask extends GulpTask<IJestConfig> {
         }
       })
       .catch((err) => {
-        process.stdout.isTTY = oldTTY;
+        writableStdout.isTTY = oldTTY;
         completeCallback(err);
       });
   }

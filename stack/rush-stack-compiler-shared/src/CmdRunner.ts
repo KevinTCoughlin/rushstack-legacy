@@ -110,7 +110,7 @@ export class CmdRunner {
           onError(data);
         });
       }
-      spawnResult.on('close', (code) => onClose(code, this._errorHasBeenLogged, resolve, reject));
+      spawnResult.on('close', (code) => onClose(code ?? 1, this._errorHasBeenLogged, resolve, reject));
     });
   }
 
