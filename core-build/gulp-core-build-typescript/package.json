@@ -16,7 +16,7 @@
   "dependencies": {
     "@microsoft/gulp-core-build": "workspace:*",
     "@rushstack/node-core-library": "~3.53.0",
-    "@types/node": "10.17.13",
+    "@types/node": "18.17.15",
     "decomment": "~0.9.1",
     "glob": "~7.0.5",
     "glob-escape": "~0.0.2",

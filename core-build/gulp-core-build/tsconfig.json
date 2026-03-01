@@ -1,6 +1,7 @@
 {
   "extends": "./node_modules/@microsoft/rush-stack-compiler-4.7/includes/tsconfig-node.json",
   "compilerOptions": {
-    "types": ["jest"]
+    "types": ["jest"],
+    "skipLibCheck": true
   }
 }
